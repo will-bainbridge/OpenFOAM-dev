@@ -5,8 +5,6 @@
     \\  /    A nd           | Copyright (C) 2013-2016 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-2016-02-14 William Bainbridge: Added limiting of phiCorrect field
--------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
 
