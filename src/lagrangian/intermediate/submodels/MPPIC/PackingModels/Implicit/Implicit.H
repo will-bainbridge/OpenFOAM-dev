@@ -5,6 +5,8 @@
     \\  /    A nd           | Copyright (C) 2013-2016 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
+2016-02-14 William Bainbridge: Added limiting of phiCorrect field
+-------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
 
@@ -70,6 +72,9 @@ private:
 
         //- Correction cell-centred velocity
         tmp<volVectorField> uCorrect_;
+
+        //- Flag to indicate whether implicit limiting is applied
+        Switch applyLimiting_;
 
         //- Flag to indicate whether gravity is applied
         Switch applyGravity_;
