@@ -5,9 +5,6 @@
     \\  /    A nd           | Copyright (C) 2011-2016 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-2016-02-14 William Bainbridge: Corrected the face centre calculation for faces
-that are so concave that the average of the points lies outside the face.
--------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
 
