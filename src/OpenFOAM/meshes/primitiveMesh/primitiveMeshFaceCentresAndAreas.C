@@ -2,8 +2,11 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2015 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2016 OpenFOAM Foundation
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+2016-02-14 William Bainbridge: Corrected the face centre calculation for faces
+that are so concave that the average of the points lies outside the face.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -109,11 +112,19 @@ void Foam::primitiveMesh::makeFaceCentresAndAreas
             {
                 const point& nextPoint = p[f[(pi + 1) % nPoints]];
 
+                sumN += (nextPoint - p[f[pi]])^(fCentre - p[f[pi]]);
+            }
+
+            const vector sumNHat = sumN/max(mag(sumN), ROOTVSMALL);
+
+            for (label pi = 0; pi < nPoints; pi++)
+            {
+                const point& nextPoint = p[f[(pi + 1) % nPoints]];
+
                 vector c = p[f[pi]] + nextPoint + fCentre;
                 vector n = (nextPoint - p[f[pi]])^(fCentre - p[f[pi]]);
-                scalar a = mag(n);
+                scalar a = n & sumNHat;
 
-                sumN += n;
                 sumA += a;
                 sumAc += a*c;
             }
