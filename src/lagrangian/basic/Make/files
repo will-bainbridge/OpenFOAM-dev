@@ -1,5 +1,7 @@
-particle/particle.C
-particle/particleIO.C
+particle/cartesianParticle/cartesianParticle.C
+particle/cartesianParticle/cartesianParticleIO.C
+particle/barycentricParticle/barycentricParticle.C
+particle/barycentricParticle/barycentricParticleIO.C
 passiveParticle/passiveParticleCloud.C
 indexedParticle/indexedParticleCloud.C
 

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2016 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2016 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -37,7 +37,7 @@ License
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
 template<class TrackData>
-void Foam::particle::prepareForParallelTransfer
+void Foam::cartesianParticle::prepareForParallelTransfer
 (
     const label patchi,
     TrackData& td
@@ -49,7 +49,7 @@ void Foam::particle::prepareForParallelTransfer
 
 
 template<class TrackData>
-void Foam::particle::correctAfterParallelTransfer
+void Foam::cartesianParticle::correctAfterParallelTransfer
 (
     const label patchi,
     TrackData& td
@@ -126,7 +126,7 @@ void Foam::particle::correctAfterParallelTransfer
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template<class CloudType>
-void Foam::particle::readFields(CloudType& c)
+void Foam::cartesianParticle::readFields(CloudType& c)
 {
     if (!c.size())
     {
@@ -145,7 +145,7 @@ void Foam::particle::readFields(CloudType& c)
         label i = 0;
         forAllIter(typename CloudType, c, iter)
         {
-            particle& p = iter();
+            cartesianParticle& p = iter();
 
             p.origProc_ = origProcId[i];
             p.origId_ = origId[i];
@@ -156,7 +156,7 @@ void Foam::particle::readFields(CloudType& c)
 
 
 template<class CloudType>
-void Foam::particle::writeFields(const CloudType& c)
+void Foam::cartesianParticle::writeFields(const CloudType& c)
 {
     // Write the cloud position file
     IOPosition<CloudType> ioP(c);
@@ -185,7 +185,11 @@ void Foam::particle::writeFields(const CloudType& c)
 
 
 template<class TrackData>
-Foam::label Foam::particle::track(const vector& endPosition, TrackData& td)
+Foam::label Foam::cartesianParticle::track
+(
+    const vector& endPosition,
+    TrackData& td
+)
 {
     facei_ = -1;
 
@@ -200,7 +204,7 @@ Foam::label Foam::particle::track(const vector& endPosition, TrackData& td)
 
 
 template<class TrackData>
-Foam::scalar Foam::particle::trackToFace
+Foam::scalar Foam::cartesianParticle::trackToFace
 (
     const vector& endPosition,
     TrackData& td
@@ -713,7 +717,7 @@ Foam::scalar Foam::particle::trackToFace
 
 
 template<class CloudType>
-void Foam::particle::hitWallFaces
+void Foam::cartesianParticle::hitWallFaces
 (
     const CloudType& cloud,
     const vector& from,
@@ -923,12 +927,12 @@ void Foam::particle::hitWallFaces
 
 
 template<class TrackData>
-void Foam::particle::hitFace(TrackData&)
+void Foam::cartesianParticle::hitFace(TrackData&)
 {}
 
 
 template<class TrackData>
-bool Foam::particle::hitPatch
+bool Foam::cartesianParticle::hitPatch
 (
     const polyPatch&,
     TrackData&,
@@ -942,7 +946,7 @@ bool Foam::particle::hitPatch
 
 
 template<class TrackData>
-void Foam::particle::hitWedgePatch
+void Foam::cartesianParticle::hitWedgePatch
 (
     const wedgePolyPatch& wpp,
     TrackData&
@@ -960,7 +964,7 @@ void Foam::particle::hitWedgePatch
 
 
 template<class TrackData>
-void Foam::particle::hitSymmetryPlanePatch
+void Foam::cartesianParticle::hitSymmetryPlanePatch
 (
     const symmetryPlanePolyPatch& spp,
     TrackData&
@@ -974,7 +978,7 @@ void Foam::particle::hitSymmetryPlanePatch
 
 
 template<class TrackData>
-void Foam::particle::hitSymmetryPatch
+void Foam::cartesianParticle::hitSymmetryPatch
 (
     const symmetryPolyPatch& spp,
     TrackData&
@@ -988,7 +992,7 @@ void Foam::particle::hitSymmetryPatch
 
 
 template<class TrackData>
-void Foam::particle::hitCyclicPatch
+void Foam::cartesianParticle::hitCyclicPatch
 (
     const cyclicPolyPatch& cpp,
     TrackData& td
@@ -1036,7 +1040,7 @@ void Foam::particle::hitCyclicPatch
 
 
 template<class TrackData>
-void Foam::particle::hitCyclicAMIPatch
+void Foam::cartesianParticle::hitCyclicAMIPatch
 (
     const cyclicAMIPolyPatch& cpp,
     TrackData& td,
@@ -1101,12 +1105,16 @@ void Foam::particle::hitCyclicAMIPatch
 
 
 template<class TrackData>
-void Foam::particle::hitProcessorPatch(const processorPolyPatch&, TrackData&)
+void Foam::cartesianParticle::hitProcessorPatch
+(
+    const processorPolyPatch&,
+    TrackData&
+)
 {}
 
 
 template<class TrackData>
-void Foam::particle::hitWallPatch
+void Foam::cartesianParticle::hitWallPatch
 (
     const wallPolyPatch&,
     TrackData&,
@@ -1116,7 +1124,7 @@ void Foam::particle::hitWallPatch
 
 
 template<class TrackData>
-void Foam::particle::hitPatch(const polyPatch&, TrackData&)
+void Foam::cartesianParticle::hitPatch(const polyPatch&, TrackData&)
 {}
 
 

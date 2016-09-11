@@ -21,16 +21,20 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
-InClass
-    Foam::particle
+Typedef
+    Foam::barycentric
 
 Description
-    Macros for adding to particle property lists
+    A scalar version of the templated Barycentric
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef particleMacros_H
-#define particleMacros_H
+#ifndef barycentric_H
+#define barycentric_H
+
+#include "scalar.H"
+#include "Barycentric.H"
+#include "contiguous.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -39,29 +43,21 @@ namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#define DefinePropertyList(str)                                                \
-                                                                               \
-    static string propertyList_;                                               \
-                                                                               \
-    static string propertyList()                                               \
-    {                                                                          \
-        return str;                                                            \
-    }
+typedef Barycentric<scalar> barycentric;
 
 
-#define AddToPropertyList(ParcelType, str)                                     \
-                                                                               \
-    static string propertyList_;                                               \
-                                                                               \
-    static string propertyList()                                               \
-    {                                                                          \
-        return ParcelType::propertyList() + str;                               \
-    }
+template<>
+inline bool contiguous<barycentric>()
+{
+    return true;
+}
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #endif
 

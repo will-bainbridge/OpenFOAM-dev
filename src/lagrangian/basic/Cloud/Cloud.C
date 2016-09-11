@@ -470,8 +470,10 @@ void Foam::Cloud<ParticleType>::autoMap
 
             vector pos = p.position();
 
-            const_cast<vector&>(p.position()) =
-                polyMesh_.cellCentres()[trackStartCell];
+            const_cast<ParticleType&>(p).position
+            (
+                polyMesh_.cellCentres()[trackStartCell]
+            );
 
             p.stepFraction() = 0;
 

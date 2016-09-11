@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2016 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2016 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -28,7 +28,7 @@ License
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
-inline void Foam::particle::findTris
+inline void Foam::cartesianParticle::findTris
 (
     const vector& position,
     DynamicList<label>& faceList,
@@ -65,7 +65,7 @@ inline void Foam::particle::findTris
 }
 
 
-inline Foam::scalar Foam::particle::tetLambda
+inline Foam::scalar Foam::cartesianParticle::tetLambda
 (
     const vector& from,
     const vector& to,
@@ -137,7 +137,7 @@ inline Foam::scalar Foam::particle::tetLambda
 }
 
 
-inline Foam::scalar Foam::particle::movingTetLambda
+inline Foam::scalar Foam::cartesianParticle::movingTetLambda
 (
     const vector& from,
     const vector& to,
@@ -318,7 +318,7 @@ inline Foam::scalar Foam::particle::movingTetLambda
 
 
 
-inline void Foam::particle::tetNeighbour(label triI)
+inline void Foam::cartesianParticle::tetNeighbour(label triI)
 {
     const labelList& pOwner = mesh_.faceOwner();
     const faceList& pFaces = mesh_.faces();
@@ -454,7 +454,7 @@ inline void Foam::particle::tetNeighbour(label triI)
 }
 
 
-inline void Foam::particle::crossEdgeConnectedFace
+inline void Foam::cartesianParticle::crossEdgeConnectedFace
 (
     const label& celli,
     label& tetFacei,
@@ -563,7 +563,7 @@ inline void Foam::particle::crossEdgeConnectedFace
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-inline Foam::label Foam::particle::getNewParticleID() const
+inline Foam::label Foam::cartesianParticle::getNewParticleID() const
 {
     label id = particleCount_++;
 
@@ -577,97 +577,97 @@ inline Foam::label Foam::particle::getNewParticleID() const
 }
 
 
-inline const Foam::polyMesh& Foam::particle::mesh() const
+inline const Foam::polyMesh& Foam::cartesianParticle::mesh() const
 {
     return mesh_;
 }
 
 
-inline const Foam::vector& Foam::particle::position() const
+inline const Foam::vector& Foam::cartesianParticle::position() const
 {
     return position_;
 }
 
 
-inline Foam::vector& Foam::particle::position()
+inline Foam::vector& Foam::cartesianParticle::position()
 {
     return position_;
 }
 
 
-inline Foam::label Foam::particle::cell() const
+inline Foam::label Foam::cartesianParticle::cell() const
 {
     return celli_;
 }
 
 
-inline Foam::label& Foam::particle::cell()
+inline Foam::label& Foam::cartesianParticle::cell()
 {
     return celli_;
 }
 
 
-inline Foam::label Foam::particle::tetFace() const
+inline Foam::label Foam::cartesianParticle::tetFace() const
 {
     return tetFacei_;
 }
 
 
-inline Foam::label& Foam::particle::tetFace()
+inline Foam::label& Foam::cartesianParticle::tetFace()
 {
     return tetFacei_;
 }
 
 
-inline Foam::label Foam::particle::tetPt() const
+inline Foam::label Foam::cartesianParticle::tetPt() const
 {
     return tetPti_;
 }
 
 
-inline Foam::label& Foam::particle::tetPt()
+inline Foam::label& Foam::cartesianParticle::tetPt()
 {
     return tetPti_;
 }
 
 
-inline Foam::tetIndices Foam::particle::currentTetIndices() const
+inline Foam::tetIndices Foam::cartesianParticle::currentTetIndices() const
 {
     return tetIndices(celli_, tetFacei_, tetPti_, mesh_);
 }
 
 
-inline Foam::tetPointRef Foam::particle::currentTet() const
+inline Foam::tetPointRef Foam::cartesianParticle::currentTet() const
 {
     return currentTetIndices().tet(mesh_);
 }
 
 
-inline Foam::vector Foam::particle::normal() const
+inline Foam::vector Foam::cartesianParticle::normal() const
 {
     return currentTetIndices().faceTri(mesh_).normal();
 }
 
 
-inline Foam::vector Foam::particle::oldNormal() const
+inline Foam::vector Foam::cartesianParticle::oldNormal() const
 {
     return currentTetIndices().oldFaceTri(mesh_).normal();
 }
 
 
-inline Foam::label Foam::particle::face() const
+inline Foam::label Foam::cartesianParticle::face() const
 {
     return facei_;
 }
 
 
-inline Foam::label& Foam::particle::face()
+inline Foam::label& Foam::cartesianParticle::face()
 {
     return facei_;
 }
 
 
-inline void Foam::particle::initCellFacePt()
+inline void Foam::cartesianParticle::initCellFacePt()
 {
     if (celli_ == -1)
     {
@@ -810,55 +810,55 @@ inline void Foam::particle::initCellFacePt()
 }
 
 
-inline bool Foam::particle::onBoundary() const
+inline bool Foam::cartesianParticle::onBoundary() const
 {
     return facei_ != -1 && facei_ >= mesh_.nInternalFaces();
 }
 
 
-inline Foam::scalar& Foam::particle::stepFraction()
+inline Foam::scalar& Foam::cartesianParticle::stepFraction()
 {
     return stepFraction_;
 }
 
 
-inline Foam::scalar Foam::particle::stepFraction() const
+inline Foam::scalar Foam::cartesianParticle::stepFraction() const
 {
     return stepFraction_;
 }
 
 
-inline Foam::label Foam::particle::origProc() const
+inline Foam::label Foam::cartesianParticle::origProc() const
 {
     return origProc_;
 }
 
 
-inline Foam::label& Foam::particle::origProc()
+inline Foam::label& Foam::cartesianParticle::origProc()
 {
     return origProc_;
 }
 
 
-inline Foam::label Foam::particle::origId() const
+inline Foam::label Foam::cartesianParticle::origId() const
 {
     return origId_;
 }
 
 
-inline Foam::label& Foam::particle::origId()
+inline Foam::label& Foam::cartesianParticle::origId()
 {
     return origId_;
 }
 
 
-inline bool Foam::particle::softImpact() const
+inline bool Foam::cartesianParticle::softImpact() const
 {
     return false;
 }
 
 
-inline Foam::scalar Foam::particle::currentTime() const
+inline Foam::scalar Foam::cartesianParticle::currentTime() const
 {
     return
         mesh_.time().value()
@@ -866,25 +866,25 @@ inline Foam::scalar Foam::particle::currentTime() const
 }
 
 
-inline bool Foam::particle::internalFace(const label facei) const
+inline bool Foam::cartesianParticle::internalFace(const label facei) const
 {
     return mesh_.isInternalFace(facei);
 }
 
 
-bool Foam::particle::boundaryFace(const label facei) const
+bool Foam::cartesianParticle::boundaryFace(const label facei) const
 {
     return !internalFace(facei);
 }
 
 
-inline Foam::label Foam::particle::patch(const label facei) const
+inline Foam::label Foam::cartesianParticle::patch(const label facei) const
 {
     return mesh_.boundaryMesh().whichPatch(facei);
 }
 
 
-inline Foam::label Foam::particle::patchFace
+inline Foam::label Foam::cartesianParticle::patchFace
 (
     const label patchi,
     const label facei
@@ -894,7 +894,7 @@ inline Foam::label Foam::particle::patchFace
 }
 
 
-inline Foam::label Foam::particle::faceInterpolation() const
+inline Foam::label Foam::cartesianParticle::faceInterpolation() const
 {
     return facei_;
 }

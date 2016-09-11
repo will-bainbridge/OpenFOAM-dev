@@ -205,7 +205,7 @@ void Foam::molecule::transformProperties(const tensor& T)
 
     rf_ = transform(T, rf_);
 
-    sitePositions_ = position_ + (T & (sitePositions_ - position_));
+    sitePositions_ = position() + (T & (sitePositions_ - position()));
 
     siteForces_ = T & siteForces_;
 }
@@ -226,7 +226,7 @@ void Foam::molecule::transformProperties(const vector& separation)
 
 void Foam::molecule::setSitePositions(const constantProperties& constProps)
 {
-    sitePositions_ = position_ + (Q_ & constProps.siteReferencePositions());
+    sitePositions_ = position() + (Q_ & constProps.siteReferencePositions());
 }
 
 

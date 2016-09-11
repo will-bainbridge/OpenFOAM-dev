@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2016 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2016 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,28 +23,29 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "particle.H"
+#include "cartesianParticle.H"
 #include "transform.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
-Foam::label Foam::particle::particleCount_ = 0;
+Foam::label Foam::cartesianParticle::particleCount_ = 0;
 
-const Foam::scalar Foam::particle::trackingCorrectionTol = 1e-5;
+const Foam::scalar Foam::cartesianParticle::trackingCorrectionTol = 1e-5;
 
-const Foam::scalar Foam::particle::lambdaDistanceToleranceCoeff = 1e3*SMALL;
+const Foam::scalar Foam::cartesianParticle::lambdaDistanceToleranceCoeff =
+    1e3*SMALL;
 
-const Foam::scalar Foam::particle::minStepFractionTol = 1e5*SMALL;
+const Foam::scalar Foam::cartesianParticle::minStepFractionTol = 1e5*SMALL;
 
 namespace Foam
 {
-    defineTypeNameAndDebug(particle, 0);
+    defineTypeNameAndDebug(cartesianParticle, 0);
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::particle::particle
+Foam::cartesianParticle::cartesianParticle
 (
     const polyMesh& mesh,
     const vector& position,
@@ -65,7 +66,7 @@ Foam::particle::particle
 {}
 
 
-Foam::particle::particle
+Foam::cartesianParticle::cartesianParticle
 (
     const polyMesh& mesh,
     const vector& position,
@@ -90,7 +91,7 @@ Foam::particle::particle
 }
 
 
-Foam::particle::particle(const particle& p)
+Foam::cartesianParticle::cartesianParticle(const cartesianParticle& p)
 :
     mesh_(p.mesh_),
     position_(p.position_),
@@ -104,7 +105,11 @@ Foam::particle::particle(const particle& p)
 {}
 
 
-Foam::particle::particle(const particle& p, const polyMesh& mesh)
+Foam::cartesianParticle::cartesianParticle
+(
+    const cartesianParticle& p,
+    const polyMesh& mesh
+)
 :
     mesh_(mesh),
     position_(p.position_),
@@ -120,15 +125,15 @@ Foam::particle::particle(const particle& p, const polyMesh& mesh)
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::particle::transformProperties(const tensor&)
+void Foam::cartesianParticle::transformProperties(const tensor&)
 {}
 
 
-void Foam::particle::transformProperties(const vector&)
+void Foam::cartesianParticle::transformProperties(const vector&)
 {}
 
 
-Foam::scalar Foam::particle::wallImpactDistance(const vector&) const
+Foam::scalar Foam::cartesianParticle::wallImpactDistance(const vector&) const
 {
     return 0.0;
 }
@@ -136,13 +141,13 @@ Foam::scalar Foam::particle::wallImpactDistance(const vector&) const
 
 // * * * * * * * * * * * * * * Friend Operators * * * * * * * * * * * * * * //
 
-bool Foam::operator==(const particle& pA, const particle& pB)
+bool Foam::operator==(const cartesianParticle& pA, const cartesianParticle& pB)
 {
     return (pA.origProc() == pB.origProc() && pA.origId() == pB.origId());
 }
 
 
-bool Foam::operator!=(const particle& pA, const particle& pB)
+bool Foam::operator!=(const cartesianParticle& pA, const cartesianParticle& pB)
 {
     return !(pA == pB);
 }

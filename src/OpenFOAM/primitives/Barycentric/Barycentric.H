@@ -22,72 +22,102 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::cartesianParticle
+    Foam::Barycentric
 
 Description
-    Base Cartesian particle class
+    Templated 3D Barycentric derived from VectorSpace. Has 4 components, one of
+    which is redundant.
+
+SourceFiles
+    BarycentricI.H
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef particle_H
-#define particle_H
+#ifndef Barycentric_H
+#define Barycentric_H
 
-#include "cartesianParticle.H"
-#include "barycentricParticle.H"
+#include "Tensor.H"
+#include "Vector.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-//typedef cartesianParticle particleBase;
-typedef barycentricParticle particleBase;
+template<class T> class List;
 
 /*---------------------------------------------------------------------------*\
-                          Class Particle Declaration
+                         Class Barycentric Declaration
 \*---------------------------------------------------------------------------*/
 
-class particle
+template<class Cmpt>
+class Barycentric
 :
-    public particleBase
+    public VectorSpace<Barycentric<Cmpt>, Cmpt, 4>
 {
 public:
 
+    //- Equivalent type of labels used for valid component indexing
+    typedef Barycentric<label> labelType;
+
+
+    // Member constants
+
+        //- Rank of Barycentric is 1
+        static const direction rank = 1;
+
+
+    //- Component labeling enumeration
+    enum components { A, B, C, D };
+
+
     // Constructors
-    
-        //- Inherit base constructors
-        using particleBase::particleBase;
 
-        //- Construct a clone
-        virtual autoPtr<particle> clone() const
-        {
-            return autoPtr<particle>(new particle(*this));
-        }
+        //- Construct null
+        inline Barycentric();
 
-        //- Factory class to read-construct particles used for
-        //  parallel transfer
-        class iNew
-        {
-            const polyMesh& mesh_;
+        //- Construct initialized to zero
+        inline Barycentric(const Foam::zero);
 
-        public:
+        //- Construct given four components
+        inline Barycentric
+        (
+            const Cmpt& va,
+            const Cmpt& vb,
+            const Cmpt& vc,
+            const Cmpt& vd
+        );
 
-            iNew(const polyMesh& mesh)
-            :
-                mesh_(mesh)
-            {}
 
-            autoPtr<particle> operator()(Istream& is) const
-            {
-                return autoPtr<particle>(new particle(mesh_, is, true));
-            }
-        };
+    // Member Functions
+
+        // Access
+
+            inline const Cmpt& a() const;
+
+            inline const Cmpt& b() const;
+
+            inline const Cmpt& c() const;
+
+            inline const Cmpt& d() const;
+
+            inline Cmpt& a();
+
+            inline Cmpt& b();
+
+            inline Cmpt& c();
+
+            inline Cmpt& d();
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include "BarycentricI.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2016 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2016 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,30 +23,36 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "particle.H"
+#include "barycentricParticle.H"
 #include "IOstreams.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
-Foam::string Foam::particle::propertyList_ = Foam::particle::propertyList();
+Foam::string Foam::barycentricParticle::propertyList_ =
+    Foam::barycentricParticle::propertyList();
 
-const std::size_t Foam::particle::sizeofPosition_
+const std::size_t Foam::barycentricParticle::sizeofFields_
 (
-    offsetof(particle, facei_) - offsetof(particle, position_)
+    sizeof(barycentricParticle) - offsetof(barycentricParticle, coordinates_)
 );
 
-const std::size_t Foam::particle::sizeofFields_
-(
-    sizeof(particle) - offsetof(particle, position_)
-);
-
+struct PositionAndCellI
+{
+    Foam::vector position_;
+    Foam::label celli_;
+};
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::particle::particle(const polyMesh& mesh, Istream& is, bool readFields)
+Foam::barycentricParticle::barycentricParticle
+(
+    const polyMesh& mesh,
+    Istream& is,
+    bool readFields
+)
 :
     mesh_(mesh),
-    position_(),
+    coordinates_(),
     celli_(-1),
     facei_(-1),
     stepFraction_(0.0),
@@ -57,7 +63,11 @@ Foam::particle::particle(const polyMesh& mesh, Istream& is, bool readFields)
 {
     if (is.format() == IOstream::ASCII)
     {
-        is  >> position_ >> celli_;
+        PositionAndCellI temp;
+        is  >> temp.position_ >> temp.celli_;
+
+        celli_ = temp.celli_;
+        position(temp.position_);
 
         if (readFields)
         {
@@ -73,40 +83,49 @@ Foam::particle::particle(const polyMesh& mesh, Istream& is, bool readFields)
     {
         if (readFields)
         {
-            is.read(reinterpret_cast<char*>(&position_), sizeofFields_);
+            is.read(reinterpret_cast<char*>(&coordinates_), sizeofFields_);
         }
         else
         {
-            is.read(reinterpret_cast<char*>(&position_), sizeofPosition_);
+            PositionAndCellI temp;
+            is.read(reinterpret_cast<char*>(&temp), sizeof(PositionAndCellI));
+
+            celli_ = temp.celli_;
+            position(temp.position_);
         }
     }
 
     // Check state of Istream
-    is.check("particle::particle(Istream&, bool)");
+    is.check("barycentricParticle::barycentricParticle(Istream&, bool)");
 }
 
 
-void Foam::particle::writePosition(Ostream& os) const
+void Foam::barycentricParticle::writePosition(Ostream& os) const
 {
     if (os.format() == IOstream::ASCII)
     {
-        os  << position_ << token::SPACE << celli_;
+        os  << position() << token::SPACE << celli_;
     }
     else
     {
-        os.write(reinterpret_cast<const char*>(&position_), sizeofPosition_);
+        PositionAndCellI temp = {position(), celli_};
+        os.write
+        (
+            reinterpret_cast<const char*>(&temp),
+            sizeof(PositionAndCellI)
+        );
     }
 
     // Check state of Ostream
-    os.check("particle::writePosition(Ostream& os, bool) const");
+    os.check("barycentricParticle::writePosition(Ostream& os, bool) const");
 }
 
 
-Foam::Ostream& Foam::operator<<(Ostream& os, const particle& p)
+Foam::Ostream& Foam::operator<<(Ostream& os, const barycentricParticle& p)
 {
     if (os.format() == IOstream::ASCII)
     {
-        os  << p.position_
+        os  << p.coordinates_
             << token::SPACE << p.celli_
             << token::SPACE << p.facei_
             << token::SPACE << p.stepFraction_
@@ -119,8 +138,8 @@ Foam::Ostream& Foam::operator<<(Ostream& os, const particle& p)
     {
         os.write
         (
-            reinterpret_cast<const char*>(&p.position_),
-            particle::sizeofFields_
+            reinterpret_cast<const char*>(&p.coordinates_),
+            barycentricParticle::sizeofFields_
         );
     }
 
