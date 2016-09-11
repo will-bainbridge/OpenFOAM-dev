@@ -1,3 +1,5 @@
+particle/particleBase/particleBase.C
+particle/particleBase/particleBaseIO.C
 particle/cartesianParticle/cartesianParticle.C
 particle/cartesianParticle/cartesianParticleIO.C
 particle/barycentricParticle/barycentricParticle.C

@@ -32,17 +32,8 @@ Description
 #ifndef barycentricParticle_H
 #define barycentricParticle_H
 
-#include "vector.H"
+#include "particleBase.H"
 #include "barycentric.H"
-#include "Cloud.H"
-#include "IDLList.H"
-#include "pointField.H"
-#include "faceList.H"
-#include "OFstream.H"
-#include "tetrahedron.H"
-#include "FixedList.H"
-#include "polyMeshTetDecomposition.H"
-#include "particleMacros.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -52,15 +43,6 @@ namespace Foam
 // Forward declaration of classes
 class barycentricParticle;
 
-class polyPatch;
-
-class cyclicPolyPatch;
-class processorPolyPatch;
-class symmetryPlanePolyPatch;
-class symmetryPolyPatch;
-class wallPolyPatch;
-class wedgePolyPatch;
-
 // Forward declaration of friend functions and operators
 
 Ostream& operator<<
@@ -69,69 +51,33 @@ Ostream& operator<<
     const barycentricParticle&
 );
 
-bool operator==(const barycentricParticle&, const barycentricParticle&);
-
-bool operator!=(const barycentricParticle&, const barycentricParticle&);
-
 /*---------------------------------------------------------------------------*\
                           Class Particle Declaration
 \*---------------------------------------------------------------------------*/
 
 class barycentricParticle
 :
-    public IDLList<barycentricParticle>::link
+    public particleBase
 {
-    // Private member data
-
-        //- Size in bytes of the position data
-        static const std::size_t sizeofPosition_;
-
-        //- Size in bytes of the fields
-        static const std::size_t sizeofFields_;
-
-
 public:
 
     template<class CloudType>
     class TrackingData
+    :
+        public particleBase::TrackingData<CloudType>
     {
-        // Private data
-
-            //- Reference to the cloud containing (this) particle
-            CloudType& cloud_;
-
-
     public:
 
         // Public data
 
-            typedef CloudType cloudType;
-
-            //- Flag to switch processor
-            bool switchProcessor;
-
-            //- Flag to indicate whether to keep particle (false = delete)
-            bool keepParticle;
-
-            //- The index of the triangle of the tet which has been hit. -1 if
             //  the track has stopped inside the tet.
             label tetTriI;
 
 
-        // Constructor
-        TrackingData(CloudType& cloud)
-        :
-            cloud_(cloud)
-        {}
+        // Constructors
 
-
-        // Member functions
-
-            //- Return a reference to the cloud
-            CloudType& cloud()
-            {
-                return cloud_;
-            }
+            // Inherit base constructors
+            using particleBase::TrackingData<CloudType>::TrackingData;
     };
 
 
@@ -139,35 +85,8 @@ protected:
 
     // Protected data
 
-        //- Reference to the polyMesh database
-        const polyMesh& mesh_;
-
         //- Barycentric coordinates of the particle within the current tet
         barycentric coordinates_;
-
-        //- Index of the cell it is in
-        label celli_;
-
-        //- Face index if the particle is on a face otherwise -1
-        label facei_;
-
-        //- Fraction of time-step completed
-        scalar stepFraction_;
-
-        //- Index of the face that owns the decomposed tet that the
-        //  particle is in
-        label tetFacei_;
-
-        //- Index of the point on the face that defines the decomposed
-        //  tet that the particle is in.  Relative to the face base
-        //  point.
-        label tetPti_;
-
-        //- Originating processor id
-        label origProc_;
-
-        //- Local particle id on originating processor
-        label origId_;
 
 
 private:
@@ -294,93 +213,6 @@ private:
             void changeCell(const TrackData& td);
 
 
-        //- Hit wall faces in the current cell if the
-        //- wallImpactDistance is non-zero.  They may not be in
-        //- Different tets to the current.
-        template<class CloudType>
-        inline void hitWallFaces
-        (
-            const CloudType& td,
-            const vector& from,
-            const vector& to,
-            scalar& lambdaMin,
-            tetIndices& closestTetIs
-        );
-
-
-protected:
-
-    // Patch interactions
-
-        //- Overridable function to handle the particle hitting a face
-        template<class TrackData>
-        void hitFace(TrackData& td);
-
-        //- Overridable function to handle the particle hitting a
-        //  patch.  Executed before other patch-hitting functions.
-        //  trackFraction is passed in to allow mesh motion to
-        //  interpolate in time to the correct face state.
-        template<class TrackData>
-        bool hitPatch
-        (
-            const polyPatch&,
-            TrackData& td,
-            const label patchi,
-            const scalar trackFraction,
-            const tetIndices& tetIs
-        );
-
-        //- Overridable function to handle the particle hitting a wedgePatch
-        template<class TrackData>
-        void hitWedgePatch(const wedgePolyPatch&, TrackData& td);
-
-        //- Overridable function to handle the particle hitting a
-        //  symmetryPlanePatch
-        template<class TrackData>
-        void hitSymmetryPlanePatch
-        (
-            const symmetryPlanePolyPatch&,
-            TrackData& td
-        );
-
-        //- Overridable function to handle the particle hitting a
-        //  symmetryPatch
-        template<class TrackData>
-        void hitSymmetryPatch(const symmetryPolyPatch&, TrackData& td);
-
-        //- Overridable function to handle the particle hitting a cyclicPatch
-        template<class TrackData>
-        void hitCyclicPatch(const cyclicPolyPatch&, TrackData& td);
-
-        //- Overridable function to handle the particle hitting a cyclicAMIPatch
-        template<class TrackData>
-        void hitCyclicAMIPatch
-        (
-            const cyclicAMIPolyPatch&,
-            TrackData& td,
-            const vector& direction
-        );
-
-        //- Overridable function to handle the particle hitting a
-        //  processorPatch
-        template<class TrackData>
-        void hitProcessorPatch(const processorPolyPatch&, TrackData& td);
-
-        //- Overridable function to handle the particle hitting a wallPatch
-        template<class TrackData>
-        void hitWallPatch
-        (
-            const wallPolyPatch&,
-            TrackData& td,
-            const tetIndices& tetIs
-        );
-
-        //- Overridable function to handle the particle hitting a
-        //  general patch
-        template<class TrackData>
-        void hitPatch(const polyPatch&, TrackData& td);
-
-
 public:
 
     // Static data members
@@ -391,23 +223,8 @@ public:
         //- String representation of properties
         DefinePropertyList
         (
-            "(Px Py Pz) celli facei stepFraction "
-            "tetFacei tetPti origProc origId"
+            string("(Ca Cb Cc Cd)") + particleBase::propertyList()
         );
-
-        //- Cumulative particle counter - used to provode unique ID
-        static label particleCount_;
-
-        //- Fraction of distance to tet centre to move a particle to
-        // 'rescue' it from a tracking problem
-        static const scalar trackingCorrectionTol;
-
-        //- Fraction of the cell volume to use in determining tolerance values
-        //  for the denominator and numerator of lambda
-        static const scalar lambdaDistanceToleranceCoeff;
-
-        //- Minimum stepFraction tolerance
-        static const scalar minStepFractionTol;
 
 
     // Constructors
@@ -456,12 +273,6 @@ public:
 
         // Access
 
-            //- Get unique particle creation id
-            inline label getNewParticleID() const;
-
-            //- Return the mesh database
-            inline const polyMesh& mesh() const;
-
             //- Return current particle barycentric coordinates
             inline const barycentric& coordinates() const;
 
@@ -476,53 +287,6 @@ public:
             //  the given cartesian position.
             void position(const vector& x);
 
-            //- Return current cell particle is in
-            inline label& cell();
-
-            //- Return current cell particle is in
-            inline label cell() const;
-
-            //- Return current tet face particle is in
-            inline label& tetFace();
-
-            //- Return current tet face particle is in
-            inline label tetFace() const;
-
-            //- Return current tet face particle is in
-            inline label& tetPt();
-
-            //- Return current tet face particle is in
-            inline label tetPt() const;
-
-            //- Return the indices of the current tet that the
-            //  particle occupies.
-            inline tetIndices currentTetIndices() const;
-
-            //- Return the geometry of the current tet that the
-            //  particle occupies.
-            inline tetPointRef currentTet() const;
-
-            //- Return the normal of the tri on tetFacei_ for the
-            //  current tet.
-            inline vector normal() const;
-
-            //- Return the normal of the tri on tetFacei_ for the
-            //  current tet at the start of the timestep, i.e. based
-            //  on oldPoints
-            inline vector oldNormal() const;
-
-            //- Return current face particle is on otherwise -1
-            inline label& face();
-
-            //- Return current face particle is on otherwise -1
-            inline label face() const;
-
-            //- Return the impact model to be used, soft or hard (default).
-            inline bool softImpact() const;
-
-            //- Return the particle current time
-            inline scalar currentTime() const;
-
 
         // Check
 
@@ -532,43 +296,6 @@ public:
 
             //- Have the cell, face, tet points been initialised?
             inline bool hasCellFacePt() const;
-
-            //- Is the particle on the boundary/(or outside the domain)?
-            inline bool onBoundary() const;
-
-            //- Is this global face an internal face?
-            inline bool internalFace(const label facei) const;
-
-            //- Is this global face a boundary face?
-            inline bool boundaryFace(const label facei) const;
-
-            //- Which patch is particle on
-            inline label patch(const label facei) const;
-
-            //- Which face of this patch is this particle on
-            inline label patchFace
-            (
-                const label patchi,
-                const label facei
-            ) const;
-
-            //- Return the fraction of time-step completed
-            inline scalar& stepFraction();
-
-            //-  Return the fraction of time-step completed
-            inline scalar stepFraction() const;
-
-            //- Return const access to the originating processor id
-            inline label origProc() const;
-
-            //- Return the originating processor id for manipulation
-            inline label& origProc();
-
-            //- Return const access to  the particle id on originating processor
-            inline label origId() const;
-
-            //- Return the particle id on originating processor for manipulation
-            inline label& origId();
 
 
         // Track
@@ -597,48 +324,8 @@ public:
             template<class TrackData>
             scalar trackToTri(const vector& endPosition, TrackData& td);
 
-            //- Return the index of the face to be used in the interpolation
-            //  routine
-            inline label faceInterpolation() const;
-
-
-    // Transformations
-
-        //- Transform the physical properties of the particle
-        //  according to the given transformation tensor
-        virtual void transformProperties(const tensor& T);
-
-        //- Transform the physical properties of the particle
-        //  according to the given separation vector
-        virtual void transformProperties(const vector& separation);
-
-        //- The nearest distance to a wall that
-        //  the particle can be in the n direction
-        virtual scalar wallImpactDistance(const vector& n) const;
-
-
-    // Parallel transfer
-
-        //- Convert global addressing to the processor patch
-        //  local equivalents
-        template<class TrackData>
-        void prepareForParallelTransfer(const label patchi, TrackData& td);
-
-        //- Convert processor patch addressing to the global equivalents
-        //  and set the celli to the face-neighbour
-        template<class TrackData>
-        void correctAfterParallelTransfer(const label patchi, TrackData& td);
-
 
     // I-O
-
-        //- Read the fields associated with the owner cloud
-        template<class CloudType>
-        static void readFields(CloudType& c);
-
-        //- Write the fields associated with the owner cloud
-        template<class CloudType>
-        static void writeFields(const CloudType& c);
 
         //- Write the particle position and cell
         void writePosition(Ostream&) const;
@@ -647,18 +334,6 @@ public:
     // Friend Operators
 
         friend Ostream& operator<<(Ostream&, const barycentricParticle&);
-
-        friend bool operator==
-        (
-            const barycentricParticle& pA,
-            const barycentricParticle& pB
-        );
-
-        friend bool operator!=
-        (
-            const barycentricParticle& pA,
-            const barycentricParticle& pB
-        );
 };
 
 

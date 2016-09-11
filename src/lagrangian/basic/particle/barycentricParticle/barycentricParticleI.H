@@ -31,26 +31,6 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-inline Foam::label Foam::barycentricParticle::getNewParticleID() const
-{
-    label id = particleCount_++;
-
-    if (id == labelMax)
-    {
-        WarningInFunction
-            << "Particle counter has overflowed. This might cause problems"
-            << " when reconstructing particle tracks." << endl;
-    }
-
-    return id;
-}
-
-
-inline const Foam::polyMesh& Foam::barycentricParticle::mesh() const
-{
-    return mesh_;
-}
-
 inline const Foam::barycentric& Foam::barycentricParticle::coordinates() const
 {
     return coordinates_;
@@ -84,102 +64,14 @@ inline void Foam::barycentricParticle::position(const vector& position)
 }
 
 
-inline Foam::label Foam::barycentricParticle::cell() const
-{
-    return celli_;
-}
-
-
-inline Foam::label& Foam::barycentricParticle::cell()
-{
-    return celli_;
-}
-
-
-inline Foam::label Foam::barycentricParticle::tetFace() const
-{
-    return tetFacei_;
-}
-
-
-inline Foam::label& Foam::barycentricParticle::tetFace()
-{
-    return tetFacei_;
-}
-
-
-inline Foam::label Foam::barycentricParticle::tetPt() const
-{
-    return tetPti_;
-}
-
-
-inline Foam::label& Foam::barycentricParticle::tetPt()
-{
-    return tetPti_;
-}
-
-
-inline Foam::tetIndices Foam::barycentricParticle::currentTetIndices() const
-{
-    return tetIndices(celli_, tetFacei_, tetPti_, mesh_);
-}
-
-
-inline Foam::tetPointRef Foam::barycentricParticle::currentTet() const
-{
-    return currentTetIndices().tet(mesh_);
-}
-
-
-inline Foam::vector Foam::barycentricParticle::normal() const
-{
-    return currentTetIndices().faceTri(mesh_).normal();
-}
-
-
-inline Foam::vector Foam::barycentricParticle::oldNormal() const
-{
-    return currentTetIndices().oldFaceTri(mesh_).normal();
-}
-
-
-inline Foam::label Foam::barycentricParticle::face() const
-{
-    return facei_;
-}
-
-
-inline Foam::label& Foam::barycentricParticle::face()
-{
-    return facei_;
-}
-
-
 inline void Foam::barycentricParticle::initCellFacePt()
 {
-    const vector oldPosition(position());
+    vector pos = position();
 
-    if (celli_ != -1)
-    {
-        mesh_.findTetFacePt(celli_, oldPosition, tetFacei_, tetPti_);
-    }
+    particleBase::initCellFacePt(pos);
 
-    if (celli_ == -1 || tetFacei_ == -1 || tetPti_ == -1)
-    {
-        mesh_.findCellFacePt(oldPosition, celli_, tetFacei_, tetPti_);
-
-        if (celli_ == -1)
-        {
-            FatalErrorInFunction
-                << "cell, tetFace and tetPt search failure at position "
-                << oldPosition << abort(FatalError);
-        }
-    }
-
-    position(oldPosition);
+    position(pos);
 }
-
 
 inline bool Foam::barycentricParticle::hasCellFacePt() const
 {
@@ -189,96 +81,6 @@ inline bool Foam::barycentricParticle::hasCellFacePt() const
     // coordinates as cartesian up until the point at which the tet is fully
     // specified. This function provides that logic.
     return celli_ != -1 && tetFacei_ != -1 && tetPti_ != -1;
-}
-
-
-inline bool Foam::barycentricParticle::onBoundary() const
-{
-    return facei_ != -1 && facei_ >= mesh_.nInternalFaces();
-}
-
-
-inline Foam::scalar& Foam::barycentricParticle::stepFraction()
-{
-    return stepFraction_;
-}
-
-
-inline Foam::scalar Foam::barycentricParticle::stepFraction() const
-{
-    return stepFraction_;
-}
-
-
-inline Foam::label Foam::barycentricParticle::origProc() const
-{
-    return origProc_;
-}
-
-
-inline Foam::label& Foam::barycentricParticle::origProc()
-{
-    return origProc_;
-}
-
-
-inline Foam::label Foam::barycentricParticle::origId() const
-{
-    return origId_;
-}
-
-
-inline Foam::label& Foam::barycentricParticle::origId()
-{
-    return origId_;
-}
-
-
-inline bool Foam::barycentricParticle::softImpact() const
-{
-    return false;
-}
-
-
-inline Foam::scalar Foam::barycentricParticle::currentTime() const
-{
-    return
-        mesh_.time().value()
-      + stepFraction_*mesh_.time().deltaTValue();
-}
-
-
-inline bool Foam::barycentricParticle::internalFace(const label facei) const
-{
-    return mesh_.isInternalFace(facei);
-}
-
-
-bool Foam::barycentricParticle::boundaryFace(const label facei) const
-{
-    return !internalFace(facei);
-}
-
-
-inline Foam::label Foam::barycentricParticle::patch(const label facei) const
-{
-    return mesh_.boundaryMesh().whichPatch(facei);
-}
-
-
-inline Foam::label Foam::barycentricParticle::patchFace
-(
-    const label patchi,
-    const label facei
-) const
-{
-    return mesh_.boundaryMesh()[patchi].whichFace(facei);
-}
-
-
-inline Foam::label Foam::barycentricParticle::faceInterpolation() const
-{
-    return facei_;
 }
 
 

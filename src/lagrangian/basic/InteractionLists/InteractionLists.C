@@ -965,7 +965,7 @@ void Foam::InteractionLists<ParticleType>::prepareParticleToBeReferred
         globalTransforms.transformIndex(ciat)
     );
 
-    particle->position() = transform.invTransformPosition(particle->position());
+    particle->position(transform.invTransformPosition(particle->position()));
 
     particle->transformProperties(-transform.t());
 

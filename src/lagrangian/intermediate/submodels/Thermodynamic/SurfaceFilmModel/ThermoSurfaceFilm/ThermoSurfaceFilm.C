@@ -447,7 +447,10 @@ void Foam::ThermoSurfaceFilm<CloudType>::splashInteraction
         }
 
         // perturb new parcels towards the owner cell centre
-        pPtr->position() += 0.5*rndGen_.sample01<scalar>()*(posC - posCf);
+        pPtr->position
+        (
+            pPtr->position() + 0.5*rndGen_.sample01<scalar>()*(posC - posCf)
+        );
 
         pPtr->nParticle() = npNew[i];
 

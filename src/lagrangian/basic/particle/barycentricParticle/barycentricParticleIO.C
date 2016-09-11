@@ -31,16 +31,6 @@ License
 Foam::string Foam::barycentricParticle::propertyList_ =
     Foam::barycentricParticle::propertyList();
 
-const std::size_t Foam::barycentricParticle::sizeofFields_
-(
-    sizeof(barycentricParticle) - offsetof(barycentricParticle, coordinates_)
-);
-
-struct PositionAndCellI
-{
-    Foam::vector position_;
-    Foam::label celli_;
-};
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -51,97 +41,31 @@ Foam::barycentricParticle::barycentricParticle
     bool readFields
 )
 :
-    mesh_(mesh),
-    coordinates_(),
-    celli_(-1),
-    facei_(-1),
-    stepFraction_(0.0),
-    tetFacei_(-1),
-    tetPti_(-1),
-    origProc_(Pstream::myProcNo()),
-    origId_(-1)
+    particleBase(mesh, is, readFields),
+    coordinates_()
 {
-    if (is.format() == IOstream::ASCII)
+    vector pos;
+    if (readFields)
     {
-        PositionAndCellI temp;
-        is  >> temp.position_ >> temp.celli_;
-
-        celli_ = temp.celli_;
-        position(temp.position_);
-
-        if (readFields)
-        {
-            is  >> facei_
-                >> stepFraction_
-                >> tetFacei_
-                >> tetPti_
-                >> origProc_
-                >> origId_;
-        }
+        particleBase::readFields(is, pos);
     }
     else
     {
-        if (readFields)
-        {
-            is.read(reinterpret_cast<char*>(&coordinates_), sizeofFields_);
-        }
-        else
-        {
-            PositionAndCellI temp;
-            is.read(reinterpret_cast<char*>(&temp), sizeof(PositionAndCellI));
-
-            celli_ = temp.celli_;
-            position(temp.position_);
-        }
+        particleBase::readPosition(is, pos);
     }
-
-    // Check state of Istream
-    is.check("barycentricParticle::barycentricParticle(Istream&, bool)");
+    position(pos);
 }
 
 
 void Foam::barycentricParticle::writePosition(Ostream& os) const
 {
-    if (os.format() == IOstream::ASCII)
-    {
-        os  << position() << token::SPACE << celli_;
-    }
-    else
-    {
-        PositionAndCellI temp = {position(), celli_};
-        os.write
-        (
-            reinterpret_cast<const char*>(&temp),
-            sizeof(PositionAndCellI)
-        );
-    }
-
-    // Check state of Ostream
-    os.check("barycentricParticle::writePosition(Ostream& os, bool) const");
+    particleBase::writePosition(os, position());
 }
 
 
 Foam::Ostream& Foam::operator<<(Ostream& os, const barycentricParticle& p)
 {
-    if (os.format() == IOstream::ASCII)
-    {
-        os  << p.coordinates_
-            << token::SPACE << p.celli_
-            << token::SPACE << p.facei_
-            << token::SPACE << p.stepFraction_
-            << token::SPACE << p.tetFacei_
-            << token::SPACE << p.tetPti_
-            << token::SPACE << p.origProc_
-            << token::SPACE << p.origId_;
-    }
-    else
-    {
-        os.write
-        (
-            reinterpret_cast<const char*>(&p.coordinates_),
-            barycentricParticle::sizeofFields_
-        );
-    }
+    p.writeFields(os, p.position());
 
     return os;
 }

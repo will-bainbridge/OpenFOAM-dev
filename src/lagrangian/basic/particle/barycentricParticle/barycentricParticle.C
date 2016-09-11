@@ -28,20 +28,6 @@ License
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
-Foam::label Foam::barycentricParticle::particleCount_ = 0;
-
-// <-- !!! These three tolerances do nothing in the barycentric method, and
-// should be deleted. They turn up in derived classes, and (for some reason) the
-// sampling library, though, so it's more work to delete them than I'm willing
-// to do right now.
-
-const Foam::scalar Foam::barycentricParticle::trackingCorrectionTol = 1e-5;
-
-const Foam::scalar Foam::barycentricParticle::lambdaDistanceToleranceCoeff =
-    1e3*SMALL;
-
-const Foam::scalar Foam::barycentricParticle::minStepFractionTol = 1e5*SMALL;
-
 namespace Foam
 {
     defineTypeNameAndDebug(barycentricParticle, 0);
@@ -59,15 +45,8 @@ Foam::barycentricParticle::barycentricParticle
     const label tetPti
 )
 :
-    mesh_(mesh),
-    coordinates_(),
-    celli_(celli),
-    facei_(-1),
-    stepFraction_(0.0),
-    tetFacei_(tetFacei),
-    tetPti_(tetPti),
-    origProc_(Pstream::myProcNo()),
-    origId_(getNewParticleID())
+    particleBase(mesh, celli, tetFacei, tetPti),
+    coordinates_()
 {
     this->position(position);
 }
@@ -81,35 +60,21 @@ Foam::barycentricParticle::barycentricParticle
     bool doCellFacePt
 )
 :
-    mesh_(mesh),
-    coordinates_(),
-    celli_(celli),
-    facei_(-1),
-    stepFraction_(0.0),
-    tetFacei_(-1),
-    tetPti_(-1),
-    origProc_(Pstream::myProcNo()),
-    origId_(getNewParticleID())
+    particleBase(mesh, celli),
+    coordinates_()
 {
+    this->position(position);
     if (doCellFacePt)
     {
         initCellFacePt();
     }
-    this->position(position);
 }
 
 
 Foam::barycentricParticle::barycentricParticle(const barycentricParticle& p)
 :
-    mesh_(p.mesh_),
-    coordinates_(p.coordinates_),
-    celli_(p.celli_),
-    facei_(p.facei_),
-    stepFraction_(p.stepFraction_),
-    tetFacei_(p.tetFacei_),
-    tetPti_(p.tetPti_),
-    origProc_(p.origProc_),
-    origId_(p.origId_)
+    particleBase(p),
+    coordinates_(p.coordinates_)
 {}
 
 
@@ -119,15 +84,8 @@ Foam::barycentricParticle::barycentricParticle
     const polyMesh& mesh
 )
 :
-    mesh_(mesh),
-    coordinates_(p.coordinates_),
-    celli_(p.celli_),
-    facei_(p.facei_),
-    stepFraction_(p.stepFraction_),
-    tetFacei_(p.tetFacei_),
-    tetPti_(p.tetPti_),
-    origProc_(p.origProc_),
-    origId_(p.origId_)
+    particleBase(p, mesh),
+    coordinates_(p.coordinates_)
 {}
 
 
@@ -314,44 +272,6 @@ void Foam::barycentricParticle::rotate(const bool reverse)
         coordinates_.c() = coordinates_.b();
         coordinates_.b() = temp;
     }
-}
-
-
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-
-void Foam::barycentricParticle::transformProperties(const tensor&)
-{}
-
-
-void Foam::barycentricParticle::transformProperties(const vector&)
-{}
-
-
-Foam::scalar Foam::barycentricParticle::wallImpactDistance(const vector&) const
-{
-    return 0.0;
-}
-
-
-// * * * * * * * * * * * * * * Friend Operators * * * * * * * * * * * * * * //
-
-bool Foam::operator==
-(
-    const barycentricParticle& pA,
-    const barycentricParticle& pB
-)
-{
-    return (pA.origProc() == pB.origProc() && pA.origId() == pB.origId());
-}
-
-
-bool Foam::operator!=
-(
-    const barycentricParticle& pA,
-    const barycentricParticle& pB
-)
-{
-    return !(pA == pB);
 }
 
 

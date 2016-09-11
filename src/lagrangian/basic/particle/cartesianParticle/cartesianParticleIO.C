@@ -31,16 +31,6 @@ License
 Foam::string Foam::cartesianParticle::propertyList_ =
     Foam::cartesianParticle::propertyList();
 
-const std::size_t Foam::cartesianParticle::sizeofPosition_
-(
-    offsetof(cartesianParticle, facei_) - offsetof(cartesianParticle, position_)
-);
-
-const std::size_t Foam::cartesianParticle::sizeofFields_
-(
-    sizeof(cartesianParticle) - offsetof(cartesianParticle, position_)
-);
-
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -51,84 +41,29 @@ Foam::cartesianParticle::cartesianParticle
     bool readFields
 )
 :
-    mesh_(mesh),
-    position_(),
-    celli_(-1),
-    facei_(-1),
-    stepFraction_(0.0),
-    tetFacei_(-1),
-    tetPti_(-1),
-    origProc_(Pstream::myProcNo()),
-    origId_(-1)
+    particleBase(mesh, is, readFields),
+    position_()
 {
-    if (is.format() == IOstream::ASCII)
+    if (readFields)
     {
-        is  >> position_ >> celli_;
-
-        if (readFields)
-        {
-            is  >> facei_
-                >> stepFraction_
-                >> tetFacei_
-                >> tetPti_
-                >> origProc_
-                >> origId_;
-        }
+        particleBase::readFields(is, position_);
     }
     else
     {
-        if (readFields)
-        {
-            is.read(reinterpret_cast<char*>(&position_), sizeofFields_);
-        }
-        else
-        {
-            is.read(reinterpret_cast<char*>(&position_), sizeofPosition_);
-        }
+        particleBase::readPosition(is, position_);
     }
-
-    // Check state of Istream
-    is.check("cartesianParticle::cartesianParticle(Istream&, bool)");
 }
 
 
 void Foam::cartesianParticle::writePosition(Ostream& os) const
 {
-    if (os.format() == IOstream::ASCII)
-    {
-        os  << position_ << token::SPACE << celli_;
-    }
-    else
-    {
-        os.write(reinterpret_cast<const char*>(&position_), sizeofPosition_);
-    }
-
-    // Check state of Ostream
-    os.check("cartesianParticle::writePosition(Ostream& os, bool) const");
+    particleBase::writePosition(os, position_);
 }
 
 
 Foam::Ostream& Foam::operator<<(Ostream& os, const cartesianParticle& p)
 {
-    if (os.format() == IOstream::ASCII)
-    {
-        os  << p.position_
-            << token::SPACE << p.celli_
-            << token::SPACE << p.facei_
-            << token::SPACE << p.stepFraction_
-            << token::SPACE << p.tetFacei_
-            << token::SPACE << p.tetPti_
-            << token::SPACE << p.origProc_
-            << token::SPACE << p.origId_;
-    }
-    else
-    {
-        os.write
-        (
-            reinterpret_cast<const char*>(&p.position_),
-            cartesianParticle::sizeofFields_
-        );
-    }
+    p.writeFields(os, p.position_);
 
     return os;
 }

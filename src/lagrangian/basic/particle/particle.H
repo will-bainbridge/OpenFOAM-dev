@@ -22,17 +22,16 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::cartesianParticle
+    Foam::particle
 
 Description
-    Base Cartesian particle class
+    Particle class
 
 \*---------------------------------------------------------------------------*/
 
 #ifndef particle_H
 #define particle_H
 
-#include "cartesianParticle.H"
 #include "barycentricParticle.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -40,23 +39,20 @@ Description
 namespace Foam
 {
 
-//typedef cartesianParticle particleBase;
-typedef barycentricParticle particleBase;
-
 /*---------------------------------------------------------------------------*\
                           Class Particle Declaration
 \*---------------------------------------------------------------------------*/
 
 class particle
 :
-    public particleBase
+    public barycentricParticle
 {
 public:
 
     // Constructors
     
         //- Inherit base constructors
-        using particleBase::particleBase;
+        using barycentricParticle::barycentricParticle;
 
         //- Construct a clone
         virtual autoPtr<particle> clone() const

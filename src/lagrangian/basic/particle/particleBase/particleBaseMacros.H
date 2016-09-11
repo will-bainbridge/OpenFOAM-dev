@@ -29,8 +29,8 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef particleMacros_H
-#define particleMacros_H
+#ifndef particleBaseMacros_H
+#define particleBaseMacros_H
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

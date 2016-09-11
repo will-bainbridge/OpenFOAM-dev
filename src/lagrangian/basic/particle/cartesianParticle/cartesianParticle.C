@@ -28,15 +28,6 @@ License
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
-Foam::label Foam::cartesianParticle::particleCount_ = 0;
-
-const Foam::scalar Foam::cartesianParticle::trackingCorrectionTol = 1e-5;
-
-const Foam::scalar Foam::cartesianParticle::lambdaDistanceToleranceCoeff =
-    1e3*SMALL;
-
-const Foam::scalar Foam::cartesianParticle::minStepFractionTol = 1e5*SMALL;
-
 namespace Foam
 {
     defineTypeNameAndDebug(cartesianParticle, 0);
@@ -54,15 +45,8 @@ Foam::cartesianParticle::cartesianParticle
     const label tetPti
 )
 :
-    mesh_(mesh),
-    position_(position),
-    celli_(celli),
-    facei_(-1),
-    stepFraction_(0.0),
-    tetFacei_(tetFacei),
-    tetPti_(tetPti),
-    origProc_(Pstream::myProcNo()),
-    origId_(getNewParticleID())
+    particleBase(mesh, celli, tetFacei, tetPti),
+    position_(position)
 {}
 
 
@@ -74,15 +58,8 @@ Foam::cartesianParticle::cartesianParticle
     bool doCellFacePt
 )
 :
-    mesh_(mesh),
-    position_(position),
-    celli_(celli),
-    facei_(-1),
-    stepFraction_(0.0),
-    tetFacei_(-1),
-    tetPti_(-1),
-    origProc_(Pstream::myProcNo()),
-    origId_(getNewParticleID())
+    particleBase(mesh, celli),
+    position_(position)
 {
     if (doCellFacePt)
     {
@@ -93,15 +70,8 @@ Foam::cartesianParticle::cartesianParticle
 
 Foam::cartesianParticle::cartesianParticle(const cartesianParticle& p)
 :
-    mesh_(p.mesh_),
-    position_(p.position_),
-    celli_(p.celli_),
-    facei_(p.facei_),
-    stepFraction_(p.stepFraction_),
-    tetFacei_(p.tetFacei_),
-    tetPti_(p.tetPti_),
-    origProc_(p.origProc_),
-    origId_(p.origId_)
+    particleBase(p),
+    position_(p.position_)
 {}
 
 
@@ -111,46 +81,9 @@ Foam::cartesianParticle::cartesianParticle
     const polyMesh& mesh
 )
 :
-    mesh_(mesh),
-    position_(p.position_),
-    celli_(p.celli_),
-    facei_(p.facei_),
-    stepFraction_(p.stepFraction_),
-    tetFacei_(p.tetFacei_),
-    tetPti_(p.tetPti_),
-    origProc_(p.origProc_),
-    origId_(p.origId_)
+    particleBase(p, mesh),
+    position_(p.position_)
 {}
-
-
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-
-void Foam::cartesianParticle::transformProperties(const tensor&)
-{}
-
-
-void Foam::cartesianParticle::transformProperties(const vector&)
-{}
-
-
-Foam::scalar Foam::cartesianParticle::wallImpactDistance(const vector&) const
-{
-    return 0.0;
-}
-
-
-// * * * * * * * * * * * * * * Friend Operators * * * * * * * * * * * * * * //
-
-bool Foam::operator==(const cartesianParticle& pA, const cartesianParticle& pB)
-{
-    return (pA.origProc() == pB.origProc() && pA.origId() == pB.origId());
-}
-
-
-bool Foam::operator!=(const cartesianParticle& pA, const cartesianParticle& pB)
-{
-    return !(pA == pB);
-}
 
 
 // ************************************************************************* //
